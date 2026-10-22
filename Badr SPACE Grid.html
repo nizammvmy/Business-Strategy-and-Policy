@@ -1,0 +1,590 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Badr SPACE Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: instrument-panel page; stage rail on top, grid on the left, two scoring panels on the right, ledger table below */
+:root {
+  --bg: #f2f4f3;
+  --surface: #ffffff;
+  --ink: #18212b;
+  --muted: #5b6670;
+  --line: #d5dbdc;
+  --grid: #e6eaea;
+  --axis: #8a959c;
+  --muslim: #2a78d6;
+  --quraysh: #c4561f;
+  --quad-tint: #eef2f1;
+  --good: #1f7a4d;
+  --bad: #b3261e;
+  --focus: #2a78d6;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #4a3aa7; --s5: #d55181;
+  --font-display: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171c; --surface: #1a2128; --ink: #e8edf0; --muted: #a3afb8; --line: #2e3740;
+    --grid: #232b33; --axis: #6f7c86; --muslim: #4b93e8; --quraysh: #e07443; --quad-tint: #1d252c;
+    --good: #5cc28d; --bad: #f08a80; --focus: #4b93e8; color-scheme: dark;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9085e9; --s5: #d55181;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171c; --surface: #1a2128; --ink: #e8edf0; --muted: #a3afb8; --line: #2e3740;
+  --grid: #232b33; --axis: #6f7c86; --muslim: #4b93e8; --quraysh: #e07443; --quad-tint: #1d252c;
+  --good: #5cc28d; --bad: #f08a80; --focus: #4b93e8; color-scheme: dark;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #9085e9; --s5: #d55181;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 24px 48px; display: grid; gap: 20px; }
+header h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 70ch; }
+.eyebrow { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+.stages { display: flex; flex-wrap: wrap; gap: 8px; }
+.stage-btn { font: inherit; display: grid; gap: 2px; text-align: left; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; min-width: 0; flex: 1 1 170px; }
+.stage-btn .n { font-family: var(--font-data); font-size: 12px; color: var(--muted); }
+.stage-btn .t { font-weight: 500; font-size: 14px; }
+.stage-btn[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 -3px 0 var(--ink); }
+.stage-btn:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0, 1fr); } }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.plot-head { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.plot-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; margin: 0; }
+.toggles { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.toggles label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg-btn { font: inherit; font-size: 13px; padding: 6px 12px; border: 0; background: var(--surface); color: var(--muted); cursor: pointer; }
+.seg-btn + .seg-btn { border-left: 1px solid var(--line); }
+.seg-btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.stage-filter { margin-bottom: 8px; }
+.vkey { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 12.5px; }
+@media (max-width: 520px) { .vkey { grid-template-columns: minmax(0, 1fr); } }
+.vkey .col-h { font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.vkey .vrow { display: grid; grid-template-columns: 30px 2.2rem minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.vkey .vrow b { font-family: var(--font-data); }
+.vkey .vrow .c { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.vkey .vrow .q { color: var(--muted); min-width: 0; }
+.vkey .off { color: var(--muted); font-style: italic; }
+.empty-note { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+#grid { width: 100%; height: auto; display: block; max-width: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 22px; height: 3px; border-radius: 2px; display: inline-block; }
+
+.panels { display: grid; gap: 16px; }
+.side h3 { margin: 0; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.side-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+.pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.dims { display: grid; gap: 10px; }
+.dim { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem; gap: 10px; align-items: center; }
+.dim .lbl { font-size: 13px; line-height: 1.25; }
+.dim .lbl b { font-family: var(--font-data); font-weight: 500; }
+.dim .lbl small { display: block; color: var(--muted); font-size: 11.5px; }
+.dim input[type="range"] { width: 100%; min-width: 0; accent-color: var(--ink); }
+.dim input[type="number"] { width: 100%; font-family: var(--font-data); font-size: 14px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); text-align: right; }
+.scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); grid-column: 2; margin-top: -8px; }
+.readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.readout div { font-size: 12px; color: var(--muted); }
+.readout strong { display: block; font-family: var(--font-data); font-size: 18px; font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; }
+.meaning { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.shift { margin: 6px 0 0; font-size: 13px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+button.ghost { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+button.ghost:hover { border-color: var(--axis); }
+.confirm { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; }
+
+.ledger h2 { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; margin: 0; }
+.ledger-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 760px; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+th { font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.num { font-family: var(--font-data); text-align: right; font-variant-numeric: tabular-nums; }
+tr.current td { background: var(--quad-tint); }
+td select { font: inherit; font-size: 13px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); max-width: 100%; }
+.match-yes { color: var(--good); font-weight: 600; }
+.match-no { color: var(--bad); font-weight: 600; }
+.unscored { color: var(--muted); font-style: italic; }
+.note { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; }
+.toast { font-size: 13px; color: var(--good); min-height: 1.2em; }
+@media (prefers-reduced-motion: no-preference) { #grid .vec { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Strategic management · SPACE matrix exercise</div>
+    <h1>Battle of Badr SPACE Grid</h1>
+    <p>Choose a stage, then set each side’s average score for the four dimensions. The grid draws each directional vector from the origin, so you can watch both sides’ strategic orientation change from the caravan opportunity to the aftermath.</p>
+  </header>
+
+  <nav class="stages" id="stages" aria-label="Battle stages"></nav>
+
+  <section class="main">
+    <div class="card">
+      <div class="plot-head">
+        <h2 id="plot-title">Stage 1</h2>
+        <div class="seg" role="group" aria-label="Grid view">
+          <button type="button" id="view-current" class="seg-btn" aria-pressed="true">Current stage</button>
+          <button type="button" id="view-all" class="seg-btn" aria-pressed="false">All stages</button>
+        </div>
+      </div>
+      <div class="toggles" style="margin-bottom:8px">
+        <label id="trail-wrap"><input type="checkbox" id="show-trail" checked> Show other scored stages</label>
+        <label><input type="checkbox" id="show-m" checked> Muslims</label>
+        <label><input type="checkbox" id="show-q" checked> Quraysh</label>
+      </div>
+      <div class="toggles stage-filter" id="stage-filter" hidden>
+        <span>Stages shown:</span>
+        <label><input type="checkbox" id="f-1" checked> 1</label>
+        <label><input type="checkbox" id="f-2" checked> 2</label>
+        <label><input type="checkbox" id="f-3" checked> 3</label>
+        <label><input type="checkbox" id="f-4" checked> 4</label>
+        <label><input type="checkbox" id="f-5" checked> 5</label>
+        <label><input type="checkbox" id="join"> Join each side’s stages in order</label>
+      </div>
+      <svg id="grid" viewBox="0 0 560 560" role="img" aria-label="SPACE matrix with the directional vectors of both sides"></svg>
+      <div class="legend" id="legend-current">
+        <span><i class="sw" style="background:var(--muslim)"></i>Muslims (Madinah)</span>
+        <span><i class="sw" style="background:var(--quraysh)"></i>Quraysh (Makkah)</span>
+        <span>Arrow: selected stage · Numbered dots: other scored stages</span>
+      </div>
+      <div class="legend" id="legend-all" hidden>
+        <span><i class="sw" style="background:var(--s1)"></i>1 Caravan opportunity</span>
+        <span><i class="sw" style="background:var(--s2)"></i>2 Caravan escapes</span>
+        <span><i class="sw" style="background:var(--s3)"></i>3 Eve of battle</span>
+        <span><i class="sw" style="background:var(--s4)"></i>4 Opening of battle</span>
+        <span><i class="sw" style="background:var(--s5)"></i>5 Aftermath</span>
+        <span><svg width="26" height="6" aria-hidden="true"><line x1="0" y1="3" x2="26" y2="3" stroke="var(--ink)" stroke-width="2.5"/></svg>M = Muslims (solid)</span>
+        <span><svg width="26" height="6" aria-hidden="true"><line x1="0" y1="3" x2="26" y2="3" stroke="var(--ink)" stroke-width="2.5" stroke-dasharray="6 4"/></svg>Q = Quraysh (dashed)</span>
+      </div>
+      <div class="vkey" id="vkey" hidden></div>
+    </div>
+
+    <div class="panels" id="panels"></div>
+  </section>
+
+  <section class="card ledger">
+    <div class="ledger-head">
+      <h2>Summary across stages</h2>
+      <div class="row-actions">
+        <span id="example-area"><button class="ghost" id="example-btn" type="button">Load example scores</button></span>
+        <button class="ghost" id="copy-btn" type="button">Copy table for Word</button>
+        <span id="reset-area"><button class="ghost" id="reset-all" type="button">Reset all stages</button></span>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Stage</th><th>Side</th><th>FP</th><th>CP</th><th>SP</th><th>IP</th><th>x = CP + IP</th><th>y = FP + SP</th><th>Quadrant indicated</th><th>Orientation actually adopted</th><th>Match</th></tr>
+        </thead>
+        <tbody id="ledger"></tbody>
+      </table>
+    </div>
+    <p class="note">A stage counts as scored once you move any of its sliders. Scores are kept in this browser only, so record your final figures in the exercise sheet. FP and IP run from +1 (worst) to +7 (best); CP and SP from −1 (best) to −7 (worst).</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const STAGES = [
+    { n: 1, t: "The caravan opportunity" },
+    { n: 2, t: "The caravan escapes" },
+    { n: 3, t: "Eve of battle" },
+    { n: 4, t: "Opening of battle" },
+    { n: 5, t: "Aftermath" }
+  ];
+  const SIDES = [
+    { key: "m", name: "Muslims (Madinah)", short: "Muslims", color: "var(--muslim)" },
+    { key: "q", name: "Quraysh (Makkah)", short: "Quraysh", color: "var(--quraysh)" }
+  ];
+  const DIMS = [
+    { key: "fp", code: "FP", name: "Financial position", min: 1, max: 7, lo: "+1 worst", hi: "+7 best", def: 4 },
+    { key: "cp", code: "CP", name: "Competitive position", min: -7, max: -1, lo: "−7 worst", hi: "−1 best", def: -4 },
+    { key: "sp", code: "SP", name: "Stability position", min: -7, max: -1, lo: "−7 worst", hi: "−1 best", def: -4 },
+    { key: "ip", code: "IP", name: "Industry position", min: 1, max: 7, lo: "+1 worst", hi: "+7 best", def: 4 }
+  ];
+  const QUAD = {
+    Aggressive: "Strong resources and position in an attractive arena: take the initiative and press the advantage.",
+    Competitive: "An attractive arena, but thin resources in an unstable setting: choose the ground and compete selectively.",
+    Conservative: "Resources stronger than position: consolidate, protect the core and avoid excessive risk.",
+    Defensive: "Weak position and resources in an unstable setting: retrench, withdraw or protect what remains.",
+    Boundary: "The vector sits on an axis, so no single quadrant is indicated. Revisit the scores."
+  };
+  const ORIENT = ["", "Aggressive", "Competitive", "Conservative", "Defensive"];
+  const STORE_KEY = "badr-space-grid-v1";
+
+  const blank = () => STAGES.map(() => ({
+    m: { fp: 4, cp: -4, sp: -4, ip: 4, scored: false, adopted: "" },
+    q: { fp: 4, cp: -4, sp: -4, ip: 4, scored: false, adopted: "" }
+  }));
+  let state = blank();
+  let current = 0;
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    if (saved && Array.isArray(saved.stages) && saved.stages.length === 5) { state = saved.stages; current = saved.current || 0; }
+  } catch (e) {}
+  const save = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify({ stages: state, current })); } catch (e) {} };
+
+  const r1 = v => Math.round(v * 10) / 10;
+  const fmt = v => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(r1(v)).toFixed(1);
+  const coords = s => ({ x: r1(s.cp + s.ip), y: r1(s.fp + s.sp) });
+  const quadrant = ({ x, y }) => (x > 0 && y > 0) ? "Aggressive" : (x < 0 && y > 0) ? "Conservative" : (x < 0 && y < 0) ? "Defensive" : (x > 0 && y < 0) ? "Competitive" : "Boundary";
+
+  /* ---------- stage rail ---------- */
+  const stagesEl = document.getElementById("stages");
+  STAGES.forEach((st, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "stage-btn"; b.id = "stage-btn-" + st.n;
+    b.innerHTML = `<span class="n"><i class="sw" style="background:var(--s${st.n});width:14px;vertical-align:middle;margin-right:6px"></i>Stage ${st.n}</span><span class="t">${st.t}</span>`;
+    b.addEventListener("click", () => { current = i; save(); renderAll(); });
+    stagesEl.appendChild(b);
+  });
+
+  /* ---------- side panels ---------- */
+  const panelsEl = document.getElementById("panels");
+  SIDES.forEach(side => {
+    const card = document.createElement("div");
+    card.className = "card side"; card.id = "panel-" + side.key;
+    card.innerHTML = `
+      <div class="side-head">
+        <h3><i class="dot" style="background:${side.color}"></i>${side.name}</h3>
+        <span class="pill" id="pill-${side.key}"></span>
+      </div>
+      <div class="dims">
+        ${DIMS.map(d => `
+          <div class="dim">
+            <label class="lbl" for="rng-${side.key}-${d.key}"><b>${d.code}</b> ${d.name}</label>
+            <input type="range" id="rng-${side.key}-${d.key}" min="${d.min}" max="${d.max}" step="0.1" aria-describedby="scale-${side.key}-${d.key}">
+            <input type="number" id="num-${side.key}-${d.key}" min="${d.min}" max="${d.max}" step="0.1" aria-label="${d.name} average, ${side.short}">
+            <div class="scale" id="scale-${side.key}-${d.key}"><span>${d.lo}</span><span>${d.hi}</span></div>
+          </div>`).join("")}
+      </div>
+      <div class="readout">
+        <div>x = CP + IP<strong id="x-${side.key}"></strong></div>
+        <div>y = FP + SP<strong id="y-${side.key}"></strong></div>
+      </div>
+      <p class="meaning" id="meaning-${side.key}"></p>
+      <p class="shift" id="shift-${side.key}"></p>
+      <div class="row-actions" style="margin-top:10px"><button class="ghost" type="button" id="reset-${side.key}">Reset this side for this stage</button></div>`;
+    panelsEl.appendChild(card);
+
+    DIMS.forEach(d => {
+      const rng = card.querySelector(`#rng-${side.key}-${d.key}`);
+      const num = card.querySelector(`#num-${side.key}-${d.key}`);
+      const set = v => {
+        if (Number.isNaN(v)) return;
+        v = Math.min(d.max, Math.max(d.min, r1(v)));
+        const s = state[current][side.key];
+        s[d.key] = v; s.scored = true; save(); renderAll(side.key, d.key);
+      };
+      rng.addEventListener("input", () => set(parseFloat(rng.value)));
+      num.addEventListener("change", () => set(parseFloat(num.value)));
+    });
+    card.querySelector(`#reset-${side.key}`).addEventListener("click", () => {
+      const s = state[current][side.key];
+      DIMS.forEach(d => { s[d.key] = d.def; }); s.scored = false; save(); renderAll();
+    });
+  });
+
+  /* ---------- grid ---------- */
+  const svg = document.getElementById("grid");
+  const NS = "http://www.w3.org/2000/svg";
+  const L = 6, PAD = 46, SIZE = 560, U = (SIZE - 2 * PAD) / (2 * L);
+  const X = v => PAD + (v + L) * U, Y = v => PAD + (L - v) * U;
+  const el = (tag, attrs, text) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (text != null) e.textContent = text; return e; };
+
+  function drawGrid() {
+    svg.innerHTML = "";
+    const defs = el("defs", {});
+    SIDES.forEach(s => {
+      const m = el("marker", { id: "arrow-" + s.key, viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+      m.appendChild(el("path", { d: "M0 0L10 5L0 10z", fill: s.color }));
+      defs.appendChild(m);
+    });
+    [1, 2, 3, 4, 5].forEach(n => {
+      const m = el("marker", { id: "arrow-s" + n, viewBox: "0 0 10 10", refX: "9", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" });
+      m.appendChild(el("path", { d: "M0 0L10 5L0 10z", fill: `var(--s${n})` }));
+      defs.appendChild(m);
+    });
+    svg.appendChild(defs);
+    svg.appendChild(el("rect", { x: PAD, y: PAD, width: SIZE - 2 * PAD, height: SIZE - 2 * PAD, fill: "var(--surface)", stroke: "var(--line)" }));
+    for (let t = -L; t <= L; t++) {
+      if (t === 0) continue;
+      svg.appendChild(el("line", { x1: X(t), x2: X(t), y1: Y(L), y2: Y(-L), stroke: "var(--grid)" }));
+      svg.appendChild(el("line", { x1: X(-L), x2: X(L), y1: Y(t), y2: Y(t), stroke: "var(--grid)" }));
+      svg.appendChild(el("text", { x: X(t), y: Y(-L) + 16, "text-anchor": "middle", "font-size": "11", fill: "var(--muted)", "font-family": "var(--font-data)" }, t > 0 ? "+" + t : "−" + (-t)));
+      svg.appendChild(el("text", { x: X(-L) - 8, y: Y(t) + 4, "text-anchor": "end", "font-size": "11", fill: "var(--muted)", "font-family": "var(--font-data)" }, t > 0 ? "+" + t : "−" + (-t)));
+    }
+    svg.appendChild(el("line", { x1: X(-L), x2: X(L), y1: Y(0), y2: Y(0), stroke: "var(--axis)", "stroke-width": "1.5" }));
+    svg.appendChild(el("line", { x1: X(0), x2: X(0), y1: Y(L), y2: Y(-L), stroke: "var(--axis)", "stroke-width": "1.5" }));
+    const q = (x, y, anchor, txt) => svg.appendChild(el("text", { x, y, "text-anchor": anchor, "font-size": "13", "font-weight": "600", fill: "var(--muted)", "letter-spacing": "0.06em" }, txt));
+    q(X(L) - 10, Y(L) + 22, "end", "AGGRESSIVE");
+    q(X(-L) + 10, Y(L) + 22, "start", "CONSERVATIVE");
+    q(X(-L) + 10, Y(-L) - 12, "start", "DEFENSIVE");
+    q(X(L) - 10, Y(-L) - 12, "end", "COMPETITIVE");
+    const ax = (x, y, anchor, txt) => svg.appendChild(el("text", { x, y, "text-anchor": anchor, "font-size": "12.5", "font-weight": "600", fill: "var(--ink)" }, txt));
+    ax(X(0), Y(L) - 10, "middle", "FP");
+    ax(X(0), Y(-L) + 32, "middle", "SP");
+    ax(X(L) + 8, Y(0) + 4, "start", "IP");
+    ax(X(-L) - 8, Y(0) + 4, "end", "CP");
+  }
+
+  let viewAll = false;
+  viewAll = true;
+  try { const v = localStorage.getItem(STORE_KEY + "-view2"); if (v) viewAll = v === "all"; } catch (e) {}
+
+  function drawAll() {
+    const g = el("g", { class: "dyn" });
+    const labels = [];
+    SIDES.forEach(side => {
+      if (!document.getElementById("show-" + side.key).checked) return;
+      const letter = side.key === "m" ? "M" : "Q";
+      const dash = side.key === "m" ? null : "7 5";
+      const pts = state.map((st, i) => ({ i, s: st[side.key] }))
+        .filter(p => p.s.scored && document.getElementById("f-" + (p.i + 1)).checked);
+      if (document.getElementById("join").checked && pts.length > 1) {
+        const d = pts.map((p, k) => { const c = coords(p.s); return (k ? "L" : "M") + X(c.x) + " " + Y(c.y); }).join(" ");
+        g.appendChild(el("path", { d, fill: "none", stroke: "var(--axis)", "stroke-width": "1.25", "stroke-dasharray": "2 4" }));
+      }
+      pts.forEach(p => {
+        const c = coords(p.s), col = `var(--s${p.i + 1})`;
+        const tip = `${side.short}, Stage ${p.i + 1} (${STAGES[p.i].t}): x ${fmt(c.x)}, y ${fmt(c.y)}, ${quadrant(c)}`;
+        if (Math.hypot(c.x, c.y) > 0.05) {
+          const ln = el("line", { x1: X(0), y1: Y(0), x2: X(c.x), y2: Y(c.y), stroke: col, "stroke-width": p.i === current ? "3.25" : "2.5", "stroke-linecap": "round", "marker-end": `url(#arrow-s${p.i + 1})` });
+          if (dash) ln.setAttribute("stroke-dasharray", dash);
+          ln.appendChild(el("title", {}, tip));
+          g.appendChild(ln);
+        }
+        const len = Math.hypot(X(c.x) - X(0), Y(c.y) - Y(0)) || 1;
+        const ux = (X(c.x) - X(0)) / len, uy = (Y(c.y) - Y(0)) / len;
+        labels.push({ x: X(c.x) + ux * 16, y: Y(c.y) + uy * 16 + 4, text: letter + (p.i + 1), col, tip });
+      });
+    });
+    const placed = [];
+    labels.forEach(l => {
+      let tries = 0;
+      while (tries < 8 && placed.some(p => Math.abs(p.x - l.x) < 24 && Math.abs(p.y - l.y) < 13)) {
+        l.y += (tries % 2 === 0 ? 1 : -1) * 14 * (Math.floor(tries / 2) + 1);
+        tries++;
+      }
+      placed.push(l);
+    });
+    if (!labels.length) {
+      g.appendChild(el("text", { x: X(0), y: Y(0) - 18, "text-anchor": "middle", "font-size": "13", fill: "var(--muted)", stroke: "var(--surface)", "stroke-width": "4", "paint-order": "stroke" }, "No scored stages yet"));
+    }
+    labels.forEach(l => {
+      const t = el("text", { x: l.x, y: l.y, "text-anchor": "middle", "font-size": "12", "font-weight": "700", fill: l.col, stroke: "var(--surface)", "stroke-width": "3", "paint-order": "stroke", "font-family": "var(--font-data)" }, l.text);
+      t.appendChild(el("title", {}, l.tip));
+      g.appendChild(t);
+    });
+    svg.appendChild(g);
+    renderKey();
+  }
+
+  function renderKey() {
+    const key = document.getElementById("vkey");
+    key.innerHTML = SIDES.map(side => {
+      const letter = side.key === "m" ? "M" : "Q";
+      const dash = side.key === "m" ? "" : ' stroke-dasharray="6 4"';
+      const rows = STAGES.map((st, i) => {
+        const s = state[i][side.key], c = coords(s);
+        const sw = `<svg width="30" height="8" aria-hidden="true"><line x1="0" y1="4" x2="30" y2="4" stroke="var(--s${i + 1})" stroke-width="3"${dash}/></svg>`;
+        return s.scored
+          ? `<div class="vrow">${sw}<b style="color:var(--s${i + 1})">${letter}${i + 1}</b><span class="q">${quadrant(c)}</span><span class="c">(${fmt(c.x)}, ${fmt(c.y)})</span></div>`
+          : `<div class="vrow">${sw}<b style="color:var(--s${i + 1})">${letter}${i + 1}</b><span class="off">Not scored</span><span></span></div>`;
+      }).join("");
+      return `<div><div class="col-h">${side.name}</div>${rows}</div>`;
+    }).join("");
+  }
+
+  function setView(all) {
+    viewAll = all;
+    try { localStorage.setItem(STORE_KEY + "-view2", all ? "all" : "current"); } catch (e) {}
+    document.getElementById("view-current").setAttribute("aria-pressed", String(!all));
+    document.getElementById("view-all").setAttribute("aria-pressed", String(all));
+    document.getElementById("stage-filter").hidden = !all;
+    document.getElementById("trail-wrap").hidden = all;
+    document.getElementById("legend-all").hidden = !all;
+    document.getElementById("legend-current").hidden = all;
+    document.getElementById("vkey").hidden = !all;
+    document.getElementById("plot-title").textContent = all ? "All stages" : `Stage ${current + 1}: ${STAGES[current].t}`;
+    drawVectors();
+  }
+
+  function drawVectors() {
+    svg.querySelectorAll(".dyn").forEach(n => n.remove());
+    if (viewAll) { drawAll(); return; }
+    const showTrail = document.getElementById("show-trail").checked;
+    SIDES.forEach(side => {
+      if (!document.getElementById("show-" + side.key).checked) return;
+      const g = el("g", { class: "dyn" });
+      if (showTrail) {
+        const pts = state.map((st, i) => ({ i, s: st[side.key] })).filter(p => p.s.scored || p.i === current);
+        if (pts.length > 1) {
+          const d = pts.map((p, k) => { const c = coords(p.s); return (k ? "L" : "M") + X(c.x) + " " + Y(c.y); }).join(" ");
+          g.appendChild(el("path", { d, fill: "none", stroke: side.color, "stroke-width": "1.5", "stroke-dasharray": "4 4", opacity: "0.55" }));
+        }
+        pts.filter(p => p.i !== current).forEach(p => {
+          const c = coords(p.s);
+          const dot = el("circle", { cx: X(c.x), cy: Y(c.y), r: "9", fill: "var(--surface)", stroke: side.color, "stroke-width": "1.5" });
+          dot.appendChild(el("title", {}, `${side.short}, Stage ${p.i + 1}: x ${fmt(c.x)}, y ${fmt(c.y)} (${quadrant(c)})`));
+          g.appendChild(dot);
+          g.appendChild(el("text", { x: X(c.x), y: Y(c.y) + 4, "text-anchor": "middle", "font-size": "11", "font-weight": "600", fill: side.color, "font-family": "var(--font-data)" }, String(p.i + 1)));
+        });
+      }
+      const s = state[current][side.key], c = coords(s);
+      const len = Math.hypot(c.x, c.y);
+      if (len > 0.05) {
+        g.appendChild(el("line", { class: "vec", x1: X(0), y1: Y(0), x2: X(c.x), y2: Y(c.y), stroke: side.color, "stroke-width": "3", "stroke-linecap": "round", "marker-end": `url(#arrow-${side.key})` }));
+      }
+      const head = el("circle", { cx: X(c.x), cy: Y(c.y), r: "5", fill: side.color, stroke: "var(--surface)", "stroke-width": "2" });
+      head.appendChild(el("title", {}, `${side.short}, Stage ${current + 1}: x ${fmt(c.x)}, y ${fmt(c.y)} (${quadrant(c)})`));
+      g.appendChild(head);
+      const lx = X(c.x) + (c.x >= 0 ? 10 : -10), ly = Y(c.y) + (c.y >= 0 ? -10 : 18);
+      g.appendChild(el("text", { x: lx, y: ly, "text-anchor": c.x >= 0 ? "start" : "end", "font-size": "12", "font-weight": "600", fill: "var(--ink)", "font-family": "var(--font-data)" }, `(${fmt(c.x)}, ${fmt(c.y)})`));
+      svg.appendChild(g);
+    });
+  }
+
+  /* ---------- panels ---------- */
+  function renderPanels(skipSide, skipDim) {
+    SIDES.forEach(side => {
+      const s = state[current][side.key], c = coords(s), q = quadrant(c);
+      DIMS.forEach(d => {
+        const rng = document.getElementById(`rng-${side.key}-${d.key}`), num = document.getElementById(`num-${side.key}-${d.key}`);
+        rng.value = s[d.key];
+        if (!(skipSide === side.key && skipDim === d.key && document.activeElement === num)) num.value = s[d.key].toFixed(1);
+      });
+      document.getElementById("x-" + side.key).textContent = fmt(c.x);
+      document.getElementById("y-" + side.key).textContent = fmt(c.y);
+      const pill = document.getElementById("pill-" + side.key);
+      pill.textContent = s.scored ? q : "Not scored yet";
+      pill.style.color = s.scored ? side.color : "var(--muted)";
+      document.getElementById("meaning-" + side.key).textContent = s.scored ? QUAD[q] : "Move a slider to score this side for this stage.";
+      const shiftEl = document.getElementById("shift-" + side.key);
+      let prev = -1;
+      for (let i = current - 1; i >= 0; i--) if (state[i][side.key].scored) { prev = i; break; }
+      if (prev >= 0 && s.scored) {
+        const p = state[prev][side.key];
+        const deltas = DIMS.map(d => ({ d, v: r1(s[d.key] - p[d.key]) }));
+        const big = deltas.reduce((a, b) => Math.abs(b.v) > Math.abs(a.v) ? b : a);
+        const pq = quadrant(coords(p));
+        shiftEl.innerHTML = Math.abs(big.v) < 0.05
+          ? `No change from Stage ${prev + 1}.`
+          : `Since Stage ${prev + 1}: largest shift in <b>${big.d.code}</b> (${fmt(big.v)}). ${pq === q ? "Quadrant unchanged." : `Quadrant moved from ${pq} to ${q}.`}`;
+      } else shiftEl.textContent = "";
+    });
+  }
+
+  /* ---------- ledger ---------- */
+  const ledger = document.getElementById("ledger");
+  function renderLedger() {
+    ledger.innerHTML = "";
+    STAGES.forEach((st, i) => SIDES.forEach(side => {
+      const s = state[i][side.key], c = coords(s), q = quadrant(c);
+      const tr = document.createElement("tr");
+      if (i === current) tr.className = "current";
+      const scored = s.scored;
+      const cell = v => scored ? `<td class="num">${fmt(v)}</td>` : `<td class="num unscored">–</td>`;
+      const match = !scored || !s.adopted ? `<span class="unscored">–</span>` : (s.adopted === q ? `<span class="match-yes">Yes</span>` : `<span class="match-no">No</span>`);
+      tr.innerHTML = `<td>${st.n}. ${st.t}</td><td><i class="dot" style="background:${side.color}"></i> ${side.short}</td>` +
+        cell(s.fp) + cell(s.cp) + cell(s.sp) + cell(s.ip) + cell(c.x) + cell(c.y) +
+        `<td>${scored ? q : '<span class="unscored">Not scored</span>'}</td>` +
+        `<td><select id="adopt-${i}-${side.key}" aria-label="Orientation adopted by ${side.short} at Stage ${st.n}">${ORIENT.map(o => `<option value="${o}" ${o === s.adopted ? "selected" : ""}>${o || "Choose…"}</option>`).join("")}</select></td>` +
+        `<td>${match}</td>`;
+      tr.querySelector("select").addEventListener("change", e => { s.adopted = e.target.value; save(); renderLedger(); });
+      ledger.appendChild(tr);
+    }));
+  }
+
+  function renderAll(skipSide, skipDim) {
+    document.querySelectorAll(".stage-btn").forEach((b, i) => b.setAttribute("aria-pressed", String(i === current)));
+    document.getElementById("plot-title").textContent = viewAll ? "All stages" : `Stage ${current + 1}: ${STAGES[current].t}`;
+    renderPanels(skipSide, skipDim);
+    drawVectors();
+    renderLedger();
+  }
+
+  ["join", "show-trail", "show-m", "show-q", "f-1", "f-2", "f-3", "f-4", "f-5"].forEach(id => document.getElementById(id).addEventListener("change", drawVectors));
+  document.getElementById("view-current").addEventListener("click", () => setView(false));
+  document.getElementById("view-all").addEventListener("click", () => setView(true));
+
+  /* ---------- copy & reset ---------- */
+  const toast = document.getElementById("toast");
+  const say = msg => { toast.textContent = msg; setTimeout(() => { if (toast.textContent === msg) toast.textContent = ""; }, 3500); };
+  document.getElementById("copy-btn").addEventListener("click", () => {
+    const rows = [["Stage", "Side", "FP", "CP", "SP", "IP", "x", "y", "Quadrant indicated", "Orientation adopted", "Match"]];
+    STAGES.forEach((st, i) => SIDES.forEach(side => {
+      const s = state[i][side.key], c = coords(s), q = quadrant(c);
+      rows.push(s.scored
+        ? [`${st.n}. ${st.t}`, side.short, fmt(s.fp), fmt(s.cp), fmt(s.sp), fmt(s.ip), fmt(c.x), fmt(c.y), q, s.adopted, s.adopted ? (s.adopted === q ? "Yes" : "No") : ""]
+        : [`${st.n}. ${st.t}`, side.short, "", "", "", "", "", "", "Not scored", s.adopted, ""]);
+    }));
+    const text = rows.map(r => r.join("\t")).join("\n");
+    const fallback = () => {
+      const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "absolute"; ta.style.left = "-9999px";
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+      ta.remove(); say(ok ? "Copied. Paste into a Word table." : "Copy is blocked here. Select the table and copy it manually.");
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => say("Copied. Paste into a Word table."), fallback);
+    else fallback();
+  });
+
+  const resetArea = document.getElementById("reset-area");
+  function showReset() {
+    resetArea.innerHTML = `<button class="ghost" id="reset-all" type="button">Reset all stages</button>`;
+    document.getElementById("reset-all").addEventListener("click", () => {
+      resetArea.innerHTML = `<span class="confirm">Clear every score? <button class="ghost" id="reset-yes" type="button">Clear all</button><button class="ghost" id="reset-no" type="button">Keep</button></span>`;
+      document.getElementById("reset-yes").addEventListener("click", () => { state = blank(); save(); renderAll(); showReset(); say("All scores cleared."); });
+      document.getElementById("reset-no").addEventListener("click", showReset);
+    });
+  }
+  showReset();
+
+  /* Illustrative scores from the instructor answer key: [FP, CP, SP, IP] for Muslims then Quraysh */
+  const EXAMPLE = [
+    [[2.5, -3.0, -3.0, 5.0], [6.0, -2.0, -2.5, 4.5]],
+    [[2.0, -2.5, -5.0, 5.5], [5.5, -3.5, -3.0, 2.5]],
+    [[3.5, -1.8, -3.0, 5.5], [4.0, -4.5, -4.5, 2.5]],
+    [[3.5, -1.5, -3.0, 5.5], [3.5, -5.5, -5.5, 2.0]],
+    [[4.5, -2.0, -3.5, 6.0], [4.0, -4.5, -4.0, 3.5]]
+  ];
+  const exampleArea = document.getElementById("example-area");
+  function showExample() {
+    exampleArea.innerHTML = `<button class="ghost" id="example-btn" type="button">Load example scores</button>`;
+    document.getElementById("example-btn").addEventListener("click", () => {
+      exampleArea.innerHTML = `<span class="confirm">Replace all scores with the example? <button class="ghost" id="ex-yes" type="button">Load</button><button class="ghost" id="ex-no" type="button">Cancel</button></span>`;
+      document.getElementById("ex-yes").addEventListener("click", () => {
+        EXAMPLE.forEach((pair, i) => ["m", "q"].forEach((k, j) => {
+          const s = state[i][k], v = pair[j];
+          s.fp = v[0]; s.cp = v[1]; s.sp = v[2]; s.ip = v[3]; s.scored = true;
+        }));
+        save(); renderAll(); showExample(); say("Example scores loaded for all five stages.");
+      });
+      document.getElementById("ex-no").addEventListener("click", showExample);
+    });
+  }
+  showExample();
+
+  const h = (location.hash || "").match(/^#stage([1-5])$/);
+  if (h) current = Number(h[1]) - 1;
+
+  drawGrid();
+  renderAll();
+  setView(viewAll);
+})();
+</script>
+
+</body></html>
